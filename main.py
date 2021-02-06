@@ -50,6 +50,7 @@ welcomed_list = []  # 已经欢迎过的观众列表（下播时重置）
 """
 初始化：配置文件读取、日志记录器设置
 """
+os.system('chcp 65001') # 使控制台用utf-8编码
 try:
     # 检查并读取配置文件
     config = RawConfigParser()
