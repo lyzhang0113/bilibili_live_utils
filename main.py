@@ -64,7 +64,8 @@ try:
     log_file = config.get('LOG', 'FILE')  # 获取输出日志文件路径，并生成日志文件名
     if log_file != '':
         log_file = log_file.replace('${room_id}', config.get('LIVE', 'ROOM_ID')).replace('${date}', str(date.today()))
-        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        if os.path.dirname(log_file) != '':
+            os.makedirs(os.path.dirname(log_file), exist_ok=True)
         log_file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
         log_file_handler.setFormatter(utils.TrimColorFormatter(config.get('LOG', 'FORMAT')))
         log.addHandler(log_file_handler)
