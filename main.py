@@ -44,8 +44,8 @@ room_id: int  # 连接的直播间房间号
 uname: str  # 主播名字
 fan_medal: str  # 连接直播间的粉丝牌名
 isStreaming: bool  # 当前是否在直播
-dahanghai_dict: dict  # 存放当前大航海成员的字典（每日凌晨重置）{uid: 大航海级别}
-welcomed_list: list  # 已经欢迎过的观众列表（下播时重置）
+dahanghai_dict = {}  # 存放当前大航海成员的字典（每日凌晨重置）{uid: 大航海级别}
+welcomed_list = []  # 已经欢迎过的观众列表（下播时重置）
 
 """
 初始化：配置文件读取、日志记录器设置
