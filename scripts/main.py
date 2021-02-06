@@ -24,9 +24,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from bilibili_api import Verify
 from bilibili_api import live
 
-import utils
-from turing_ai import TuringAI
-import danmaku_sender
+from scripts import utils, danmaku_sender
+from scripts.turing_ai import TuringAI
 
 # 配置文件存放路径，默认为同目录的 config.ini 文件
 config_path = 'config.ini'
