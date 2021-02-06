@@ -1,2 +1,5 @@
 *.log
 venv/
+/config.ini
+/dist/
+/build/
