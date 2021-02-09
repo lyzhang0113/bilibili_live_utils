@@ -1,11 +1,5 @@
 # -*- coding: UTF-8 -*-
 
-# ---------------------------
-# 修改配置文件后需要重启程序生效！
-# 修改配置文件后需要重启程序生效！
-# 修改配置文件后需要重启程序生效！
-# ---------------------------
-
 # file          config.ini
 # project       bilibili_live_utils
 # name          Config 配置文件
@@ -13,6 +7,11 @@
 # github        https://github.com/lyzhang0113/bilibili-live-utils
 # description   负责程序的所有配置设置
 
+# ---------------------------
+# 修改配置文件后需要重启程序生效！
+# 修改配置文件后需要重启程序生效！
+# 修改配置文件后需要重启程序生效！
+# ---------------------------
 
 # 和直播相关的配置
 [LIVE]
@@ -39,6 +38,8 @@ FILE = ${room_id}_${date}.log
 
 # 弹幕格式配置
 [DANMAKU]
+; 是否启用弹幕发送功能（一般Debug时设为False）
+ENABLE = False
 ; 一次直播（直播开始-结束）时间内，用户进入时是否只欢迎一次，即不重复欢迎本次直播内已经欢迎过的观众 [True / False]
 ONLY_WELCOME_ONCE = True
 ; 欢迎用户进入
@@ -60,6 +61,14 @@ SCHEDULED_NOTICE = 欢迎新来直播间的朋友,
 
 # AI机器人的配置
 [TURING_AI]
+; 图灵机器人的开关，关闭后其他图灵机器人配置为 [可选]
+ENABLE = True
+; 向AI对话时在弹幕里加的前缀（如果使用AI机器人的话，不可以留空）
+QUESTION_PREFIX = $?
+; AI回复时的前缀（不可以与上一配置相同，会导致AI自问自答死循环，不要问我怎么知道的）
+ANSWER_PREFIX = $!
+; Fallback 回复（当机器人遇到问题无法访问时的通用回复）
+FALLBACK = 机器人可能没电啦呜呜~
 ; 图灵机器人API的地址（一般不必修改）
 API_URL = http://openapi.tuling123.com/openapi/api/v2
 ; 图灵机器人的API_KEY（以list存储，轮询使用）参见 http://www.tuling123.com/member/robot/index.jhtml

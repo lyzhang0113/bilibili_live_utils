@@ -12,11 +12,8 @@
 :description    使用账号信息和房间号进行初始化后，可以向该房间发送指定格式弹幕
 """
 
-import asyncio
-import sys
 import logging
 import time
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from termcolor import colored
 from bilibili_api import *
@@ -24,7 +21,7 @@ from bilibili_api import *
 
 class DanmakuSender(object):
 
-    def __init__(self, room_id: int, verify: Verify, min_interval: int = 3000):
+    def __init__(self, room_id: int, verify: Verify, min_interval: int = 3000, enable: bool = True):
         """
         初始化弹幕姬，传入用户验证信息和房间号
         :type verify: Verify 登陆用户的Verify类
@@ -35,7 +32,8 @@ class DanmakuSender(object):
         self.verify = verify
         self.__prev_time = datetime.now()
         self.minimal_send_interval = min_interval
-        self._log = logging.getLogger('')
+        self.enable = enable
+        self._log = logging.getLogger('bilibili_live_utils')
 
     def welcome_enter(self, uname):
         """
@@ -89,11 +87,12 @@ class DanmakuSender(object):
     #     content = "欢迎新来的小伙伴~如果喜欢主播这样的可爱神兽可以点波关注哦~"
     #     self.send(Danmaku(text=content, mode=Danmaku.MODE_TOP, font_size=Danmaku.FONT_SIZE_SUPER_SMALL), False)
 
-    def send_text(self, text):
+    def send_text(self, text, interval: float = 1.5):
         """
         对于可能出现的过长弹幕（如用户输入、AI回复）
         使用此方法可以自动以30个字拆分弹幕并发送
         :param text: 要发送的弹幕内容（可以超过30个字）
+        :param interval: 如果弹幕过长需要分多条发送时的间隔
         """
         chunks = [text[i:i + 30] for i in range(0, len(text), 30)]
         self._log.debug(str(chunks))
@@ -101,15 +100,18 @@ class DanmakuSender(object):
             if chunk != "":
                 self.send(danmaku=Danmaku(text=chunk, mode=Danmaku.MODE_FLY, font_size=Danmaku.FONT_SIZE_NORMAL),
                           important=True)
-                time.sleep(1.5)
+                time.sleep(interval)
 
     def send(self, danmaku: Danmaku, important=False):
         """
         发送弹幕，有最短间隔时间
-        :param console_input: 是否是控制台输入的弹幕
         :type danmaku: Danmaku
         :type important: bool
         """
+        # 弹幕功能已禁用
+        if not self.enable:
+            # self._log.warning("弹幕发送失败，已禁用！" + danmaku.text)
+            return
         try:
             self._log.info(colored(str("【发送弹幕】" + danmaku.text), 'red', 'on_green'))
             time_delta = datetime.now() - self.__prev_time
@@ -120,24 +122,3 @@ class DanmakuSender(object):
             self.__prev_time = datetime.now()
         except Exception as e:
             self._log.error("弹幕发送失败！" + str(e))
-
-
-async def ainput(prompt: str = ""):
-    """
-    异步等待用户输入
-    :param prompt: 提示语
-    :return: 用户输入的内容
-    """
-    with ThreadPoolExecutor(1, "AsyncInput", lambda x: print(x, end="", flush=True), (prompt,)) as executor:
-        return (await asyncio.get_event_loop().run_in_executor(
-            executor, sys.stdin.readline
-        )).rstrip()
-
-
-async def start_console_sender(ds: DanmakuSender):
-    """
-    启用控制台发送弹幕。无限循环等待用户输入，输入后发送弹幕。
-    :param ds: DanmakuSender 弹幕发送类
-    """
-    while True:
-        ds.send_text(await ainput())

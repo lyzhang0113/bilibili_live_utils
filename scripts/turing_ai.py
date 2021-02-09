@@ -19,28 +19,44 @@ import logging
 
 
 class TuringAI(object):
-    def __init__(self, api_url: str, api_keys: list, request_body: str):
+    def __init__(self, api_url: str, api_keys: list, request_body: str, enable: bool = True):
+        """
+        初始化图灵机器人
+        :param api_url: 图灵机器人的API接口地址
+        :param api_keys: 包含一个或多个API KEY的list
+        :param request_body: 请求体模板
+        """
         self.api_url = api_url
         self.api_keys = api_keys
         self.request_body = json.loads(request_body)
-        self.log = logging.getLogger('')
+        self.enable = enable
+        self.log = logging.getLogger('bilibili_live_utils')
         self._current_api = 0
         self._retry_count = 0
 
     def ask(self, text: str, user_id=str(random.randrange(10000000000, 99999999999))):
+        """
+        向图灵机器人API发送请求
+        :param text: 要发送的内容
+        :param user_id: 用户id（用来区分对话，使弹幕发送者可以和机器人上下文联系对话）
+        :return: 图灵机器人的回复
+        :raise ConnectionError: 当所有API KEY次数均用尽时抛出
+        """
+        if not self.enable:
+            return
         self.log.debug("用户" + user_id + "向AI请求：" + text)
         request_body = self.request_body
         request_body["perception"]["inputText"]["text"] = text
         request_body["userInfo"]["userId"] = user_id
         request_body["userInfo"]["apiKey"] = self.api_keys[self._current_api]
 
-        response = requests.post(self.api_url, json=request_body)
-        response = response.json()
+        response = requests.post(self.api_url, json=request_body).json()
+        self.log.debug('Turing API返回：' + response)
         response_code = response["intent"]["code"]
 
         # 尝试所有API key仍然不行：
-        if self._retry_count == len(self.api_keys):
-            return "机器人没电啦呜呜~"
+        if self._retry_count >= len(self.api_keys):
+            raise ConnectionError("所有API KEY均失效")
 
         # 如果接口报请求次数限制错误，尝试下一API_KEY
         if str(response_code) == '4003':
@@ -54,9 +70,9 @@ class TuringAI(object):
         self._retry_count = 0
         return response_text
 
-    def refresh_retry_count(self):
+    def reset_retry_count(self):
         """
         清空重试次数。API调用次数每日更新，即每日零点应触发一次。
-        :return:
+        :return: None
         """
         self._retry_count = 0

@@ -6,8 +6,8 @@ add_files = [
     ('venv\\Lib\\site-packages\\bilibili_api\\data\\api.json', 'bilibili_api\\data'),
     ]
 
-a = Analysis(['main.py'],
-             pathex=['E:\\PyWorkspace\\bilibili_live_utils'],
+a = Analysis(['scripts\\main.py'],
+             pathex=['.'],
              binaries=[],
              datas=add_files,
              hiddenimports=[],
@@ -34,4 +34,3 @@ exe = EXE(pyz,
           upx_exclude=[],
           runtime_tmpdir=None,
           console=True )
-

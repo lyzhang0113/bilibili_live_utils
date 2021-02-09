@@ -11,10 +11,12 @@
 :created        2021/02/06 14:18
 :description    通用的工具方法放在这里
 """
-
+import asyncio
 import os
 import logging
 import re
+import sys
+from concurrent.futures import ThreadPoolExecutor
 from configparser import RawConfigParser
 from bilibili_api import live
 
@@ -22,9 +24,22 @@ from bilibili_api import live
 guard_name = {0: "用户", 1: "总督", 2: "提督", 3: "舰长"}  # 大航海类型映射关系
 
 
+async def ainput(prompt: str = ""):
+    """
+    异步等待用户输入
+    :param prompt: 提示语
+    :return: 用户输入的内容
+    """
+    with ThreadPoolExecutor(1, "AsyncInput", lambda x: print(x, end="", flush=True), (prompt,)) as executor:
+        return (await asyncio.get_event_loop().run_in_executor(
+            executor, sys.stdin.readline
+        )).rstrip()
+
+
 def config_check(config: RawConfigParser, path: str):
     """
-    检查是否存在运行需要的配置文件和相关配置，如果不存在，退出运行
+    检查是否存在运行需要的配置文件和相关配置，如果不存在，退出运行。
+
     :param config: RawConfigParser 配置文件类
     :param path: 要读取的配置文件路径
     :return: None
@@ -42,6 +57,8 @@ def config_check(config: RawConfigParser, path: str):
         '配置文件缺少 [USER] 中的 CSRF 属性，请指定登陆用户的 CSRF ！'
     assert config.has_option('LOG', 'LEVEL'), \
         '配置文件缺少 [LOG] 中的 LEVEL 属性，请指定程序日志等级！'
+    assert config.has_option('LOG', 'FORMAT'), \
+        '配置文件缺少 [LOG] 中的 FORMAT 属性，请指定程序日志格式！'
     assert config.has_option('DANMAKU', 'WELCOME_ENTER'), \
         '配置文件缺少 [DANMAKU] 中的 WELCOME_ENTER 属性！'
     assert config.has_option('DANMAKU', 'WELCOME_GUARD'), \
@@ -54,6 +71,14 @@ def config_check(config: RawConfigParser, path: str):
         '配置文件缺少 [DANMAKU] 中的 THANK_SC 属性！'
     assert config.has_option('DANMAKU', 'SCHEDULED_INTERVAL'), \
         '配置文件缺少 [DANMAKU] 中的 SCHEDULED_INTERVAL 属性！请指定定时弹幕的发送间隔！'
+    assert config.has_option('TURING_AI', 'ENABLE'), \
+        '配置文件缺少 [TURING_AI] 中的 ENABLE 属性！请指定是否启用图灵机器人！'
+    if not config.getboolean('TURING_AI', 'ENABLE'):
+        return
+    assert config.has_option('TURING_AI', 'QUESTION_PREFIX'), \
+        '配置文件缺少 [TURING_AI] 中的 QUESTION_PREFIX 属性！请指定图灵机器人监听的弹幕前缀！'
+    assert config.has_option('TURING_AI', 'ANSWER_PREFIX'), \
+        '配置文件缺少 [TURING_AI] 中的 ANSWER_PREFIX 属性！请指定图灵机器人回复时的弹幕前缀！'
     assert config.has_option('TURING_AI', 'API_URL'), \
         '配置文件缺少 [TURING_AI] 中的 API_URL 属性！请指定图灵机器人的API地址！'
     assert config.has_option('TURING_AI', 'API_KEYS'), \
