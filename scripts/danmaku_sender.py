@@ -35,12 +35,15 @@ class DanmakuSender(object):
         self.enable = enable
         self._log = logging.getLogger('bilibili_live_utils')
 
-    def welcome_enter(self, uname):
+    def welcome_enter(self, uname, sex):
         """
         欢迎用户进入直播间
+        :param sex: 进入直播间的用户性别 ['男', '女', '保密']
         :type uname: str 进入直播间的用户的用户名
         """
-        content = "欢迎" + uname + "进入直播间"
+        # TODO: 修改以兼容配置文件写定格式
+        sex = '' if sex == "保密" else sex + "妈妈"
+        content = "欢迎" + sex + uname + "进入直播间"
         self.send(Danmaku(text=content, mode=Danmaku.MODE_BOTTOM, font_size=Danmaku.FONT_SIZE_SMALL))
 
     def welcome_guard(self, uname, guard_type):
@@ -49,7 +52,7 @@ class DanmakuSender(object):
         :type uname: str 进入直播间的用户的用户名
         :type guard_type: str 大航海级别（字符串）
         """
-        content = "喵~欢迎" + guard_type + uname + "进入直播间签到"
+        content = "喵~欢迎" + guard_type + "大人" + uname + "光临直播间"
         self.send(Danmaku(text=content, mode=Danmaku.MODE_BOTTOM, font_size=Danmaku.FONT_SIZE_SMALL), True)
 
     def thanks_gift(self, uname, giftname, num):
@@ -69,7 +72,7 @@ class DanmakuSender(object):
         :type giftname: str 开通的大航海类型（字符串）
         :type num: int 开通的月数
         """
-        content = "感谢" + uname + "开通的" + str(num) + "个月" + giftname + "！老板断气！"
+        content = "感谢" + uname + "开通的" + str(num) + "个月" + giftname + "~"
         self.send(Danmaku(text=content, mode=Danmaku.MODE_TOP, font_size=Danmaku.FONT_SIZE_NORMAL), True)
 
     def thanks_sc(self, uname):
@@ -77,19 +80,12 @@ class DanmakuSender(object):
         感谢醒目留言
         :type uname: str 发送形目留言的用户的用户名
         """
-        content = "感谢" + uname + "发送的醒目留言！老板断气"
+        content = "感谢" + uname + "发送的醒目留言~"
         self.send(Danmaku(text=content, mode=Danmaku.MODE_TOP, font_size=Danmaku.FONT_SIZE_NORMAL), True)
-
-    # def subscribe_notice(self):
-    #     """
-    #     提醒关注~
-    #     """
-    #     content = "欢迎新来的小伙伴~如果喜欢主播这样的可爱神兽可以点波关注哦~"
-    #     self.send(Danmaku(text=content, mode=Danmaku.MODE_TOP, font_size=Danmaku.FONT_SIZE_SUPER_SMALL), False)
 
     def send_text(self, text, interval: float = 1.5):
         """
-        对于可能出现的过长弹幕（如用户输入、AI回复）
+        对超长弹幕的预处理，分片发送
         使用此方法可以自动以30个字拆分弹幕并发送
         :param text: 要发送的弹幕内容（可以超过30个字）
         :param interval: 如果弹幕过长需要分多条发送时的间隔

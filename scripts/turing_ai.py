@@ -44,15 +44,17 @@ class TuringAI(object):
         """
         if not self.enable:
             return
-        self.log.debug("用户" + user_id + "向AI请求：" + text)
+        self.log.debug("用户" + user_id + "向图灵AI请求：" + text)
         request_body = self.request_body
-        request_body["perception"]["inputText"]["text"] = text
-        request_body["userInfo"]["userId"] = user_id
-        request_body["userInfo"]["apiKey"] = self.api_keys[self._current_api]
+        request_body['perception']['inputText']['text'] = text
+        request_body['userInfo']['userId'] = user_id
+        api_key = self.api_keys[self._current_api]
+        request_body['userInfo']['apiKey'] = api_key
 
+        self.log.debug("使用API_KEY = " + api_key)
         response = requests.post(self.api_url, json=request_body).json()
-        self.log.debug('Turing API返回：' + response)
-        response_code = response["intent"]["code"]
+        self.log.debug("图灵API返回：" + response)
+        response_code = response['intent']['code']
 
         # 尝试所有API key仍然不行：
         if self._retry_count >= len(self.api_keys):
@@ -60,13 +62,12 @@ class TuringAI(object):
 
         # 如果接口报请求次数限制错误，尝试下一API_KEY
         if str(response_code) == '4003':
-            self.log.warning("当前API次数已用完，尝试下一API")
+            self.log.warning("当前API_KEY次数已用完，尝试下一个API_KEY")
             self._retry_count += 1
             self._current_api = self._current_api + 1 if self._current_api < len(self.api_keys) else 0
             return self.ask(text=text, user_id=user_id)
 
-        response_text = str(response["results"][0]["values"]["text"])
-        self.log.info("A:" + response_text + "请求返回码：" + str(response_code))
+        response_text = str(response['results'][0]['values']['text'])
         self._retry_count = 0
         return response_text
 

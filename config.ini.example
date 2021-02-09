@@ -31,17 +31,19 @@ BILIBILI_JCT = f1231231231ff12f1ffee1f1e12e123c
 ; 日志等级 NOTSET < DEBUG < INFO < WARNING < ERROR < CRITICAL
 LEVEL = INFO
 ; 日志记录格式
-FORMAT = [%(asctime)s][%(levelname)s][%(module)s.%(funcName)s]:%(lineno)d -> %(message)s
+FORMAT = [%(asctime)s][%(levelname)-8s][%(module)s.%(funcName)-15s]:%(lineno)d -> %(message)s
 ; 日志保存文件名（留空则不保存至文件）
-FILE = ${room_id}_${date}.log
+FILE = logs/${room_id}_${date}.log
 
 
 # 弹幕格式配置
 [DANMAKU]
 ; 是否启用弹幕发送功能（一般Debug时设为False）
-ENABLE = False
+ENABLE = True
 ; 一次直播（直播开始-结束）时间内，用户进入时是否只欢迎一次，即不重复欢迎本次直播内已经欢迎过的观众 [True / False]
 ONLY_WELCOME_ONCE = True
+
+# ***** 自定义发送模板暂时还不支持 *****
 ; 欢迎用户进入
 WELCOME_ENTER = 欢迎${uname}进入直播间
 ; 欢迎大航海成员进入
@@ -52,6 +54,8 @@ THANK_GIFT = 感谢${uname}赠送的${gift_name}x${gift_count}
 THANK_GUARD = 感谢${uname}开通了${gift_count}个月的${guard_type}，老板大气！
 ; 感谢醒目留言
 THANK_SC = 感谢${uname}赠送的醒目留言，老板大气！
+# ***** 自定义发送模板暂时还不支持 *****
+
 ; 定时发送弹幕间隔（分钟）
 SCHEDULED_INTERVAL = 10
 ; 定时发送弹幕格式（如有多条则随机发送）（以英文逗号','区分设置多条，所以定时弹幕内容里不可以包含英文逗号）
