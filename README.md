@@ -1,1 +1,14 @@
-# bilibili_live_utils
+# Bilibili直播辅助工具 - bilibili_live_utils
+
+## 功能
+
+- 直播间欢迎、答谢礼物
+- 直播间定时弹幕
+- 调用图灵机器人自动回复
+- ~~自定义弹幕内容~~ -> 开发中
+
+## 快速开始
+### 编辑配置文件
+下载 **config.ini** 文件，打开根据提示编辑相关配置
+### 运行程序
+下载Release版本的**main.exe**，确保运行exe的同路径下跑含config.ini文件，即可运行本程序。
